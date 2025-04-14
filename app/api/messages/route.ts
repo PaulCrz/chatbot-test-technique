@@ -1,38 +1,25 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 /**
- * Route API pour créer un nouveau message
- * Méthode: POST
- * @param request Requête HTTP contenant le contenu du message et l'ID de la conversation
- * @returns Le message créé avec un statut 201 ou une erreur
+ * API route to create a new message
+ * Method: POST
+ * @param request HTTP request containing the message content and the conversation ID
+ * @returns The created message with a 201 status or an error
  */
 export async function POST(request: Request) {
   try {
-    // Extraire les données de la requête
+    // Extract and verify the required request data
     const { content, conversationId } = await request.json();
-
-    // Vérifier que les données requises sont présentes
     if (!content || !conversationId) {
       return NextResponse.json(
-        { error: 'Le contenu du message et l\'ID de la conversation sont requis' },
+        { error: 'Message content and conversation ID are required' },
         { status: 400 }
       );
     }
 
-    // Vérifier que la conversation existe
-    const conversation = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-    });
-
-    if (!conversation) {
-      return NextResponse.json(
-        { error: 'Conversation non trouvée' },
-        { status: 404 }
-      );
-    }
-
-    // Créer le message dans la base de données
+    // Directly try to create the message
     const message = await prisma.message.create({
       data: {
         content,
@@ -41,14 +28,27 @@ export async function POST(request: Request) {
       },
     });
 
-    // Retourner le message créé avec un statut 201 (Created)
+    // Return the created message with a status of 201 (Created)
     return NextResponse.json(message, { status: 201 });
+
   } catch (error) {
-    console.error('Erreur lors de la création du message:', error);
-    
-    // Retourner une erreur 500 en cas d'échec
+
+    console.error('[messages:POST]', error);
+
+    // Check if the error is a known Prisma error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Prisma error code for foreign key constraint violation
+      if (error.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Conversation not found' },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Return a 500 error on failure
     return NextResponse.json(
-      { error: 'Erreur lors de la création du message' },
+      { error: 'Error creating message' },
       { status: 500 }
     );
   }

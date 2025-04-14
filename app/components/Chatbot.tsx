@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+
 import { Message } from '@prisma/client';
-import ChatInput from './ChatInput';
+
+import ChatInput, { Request } from './ChatInput';
 import MessageList from './MessageList';
 
 /**
@@ -26,11 +28,11 @@ export default function Chatbot() {
       const response = await fetch('/api/conversations', {
         method: 'POST',
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la création de la conversation');
       }
-      
+
       const data = await response.json();
       setConversationId(data.id);
       setMessages([]);
@@ -46,17 +48,45 @@ export default function Chatbot() {
     createNewConversation();
   }, [createNewConversation]);
 
+  /** Get a conversation message preview from a request data */
+  const formatMessagePreview = (requestData: Request): string => {
+
+    const action = requestData.option?.description.toLowerCase();
+
+    const items = requestData.items.map((item) => `• ${item.name}`).join('\n');
+
+    const locations = requestData.locations.map((location) => `• ${location.name}`).join('\n');
+
+    let preview = `Je souhaite ${action}`
+
+    if (requestData.items.length)
+      preview = preview.concat(`\n\nListe des objets concernés :\n${items}`);
+
+    if (requestData.locations.length)
+      preview = preview.concat(`\n\nListe des établissments concernés :\n${locations}`);
+
+    return preview;
+  };
+
   /**
-   * Gère l'envoi d'un message
-   * @param content Contenu du message à envoyer
+   * Handle sending the user request to backend
+   * @param requestData The request data to send
    */
-  const handleSendMessage = async (content: string) => {
-    if (!conversationId || !content.trim()) return;
+  const handleSendMessage = async (requestData: Request) => {
+
+    console.log("[handleSendMessage]", requestData);
+
+    // Check for valid conversation ID
+    if (!conversationId)
+        return;
+
+    // Create a message preview
+    const messagePreview = formatMessagePreview(requestData);
 
     // Créer un message temporaire pour l'affichage immédiat
     const tempUserMessage: Message = {
       id: Date.now().toString(),
-      content,
+      content: messagePreview,
       isUserMessage: true,
       createdAt: new Date(),
       conversationId,
@@ -64,7 +94,7 @@ export default function Chatbot() {
 
     setMessages((prev) => [...prev, tempUserMessage]);
     setIsLoading(true);
-    
+
     // Ajouter un indicateur de frappe
     setIsTyping(true);
 
@@ -76,8 +106,9 @@ export default function Chatbot() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content,
           conversationId,
+          content: messagePreview,
+          requestData,
         }),
       });
 
@@ -86,10 +117,10 @@ export default function Chatbot() {
       }
 
       const data = await response.json();
-      
+
       // Simuler un délai de frappe pour le bot (effet UX)
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Ajouter la réponse du chatbot
       const botMessage: Message = {
         id: Date.now().toString() + '-bot',
@@ -114,7 +145,7 @@ export default function Chatbot() {
     <div className="flex flex-col h-[80vh] w-full max-w-3xl mx-auto rounded-lg overflow-hidden shadow-xl border border-gray-200 bg-white">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Chatbot</h1>
-        <button 
+        <button
           onClick={createNewConversation}
           disabled={isLoading}
           aria-label="Démarrer une nouvelle conversation"
@@ -129,9 +160,9 @@ export default function Chatbot() {
       <div className="flex-1 bg-gray-50 overflow-hidden flex flex-col">
         <MessageList messages={messages} isTyping={isTyping} />
         <div className="p-4 border-t border-gray-200 bg-white">
-          <ChatInput onSendMessage={handleSendMessage} isDisabled={isLoading || !conversationId} />
+          <ChatInput onSendMessage={handleSendMessage} conversationLoaded={!isLoading && !!conversationId} />
         </div>
       </div>
     </div>
   );
-} 
+}

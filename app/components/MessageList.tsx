@@ -58,14 +58,14 @@ const MessageList = memo(function MessageList({ messages, isTyping }: MessageLis
                 : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
             }`}
           >
-            <p className="break-words">{message.content}</p>
+            <p className="break-words whitespace-pre-wrap">{message.content}</p>
             <div className={`text-xs mt-1 ${message.isUserMessage ? 'text-blue-100' : 'text-gray-400'}`}>
               {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
         </div>
       ))}
-      
+
       {/* Indicateur de frappe */}
       {isTyping && (
         <div className="flex justify-start animate-fadeIn">
@@ -78,7 +78,7 @@ const MessageList = memo(function MessageList({ messages, isTyping }: MessageLis
           </div>
         </div>
       )}
-      
+
       {/* Référence pour le défilement automatique */}
       <div ref={messagesEndRef} />
     </div>
@@ -88,4 +88,4 @@ const MessageList = memo(function MessageList({ messages, isTyping }: MessageLis
 // Nom d'affichage pour les outils de développement
 MessageList.displayName = 'MessageList';
 
-export default MessageList; 
+export default MessageList;

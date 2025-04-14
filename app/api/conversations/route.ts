@@ -17,11 +17,11 @@ export async function POST() {
     return NextResponse.json(conversation, { status: 201 });
   } catch (error) {
     console.error('Erreur lors de la création de la conversation:', error);
-    
+
     // Retourner une erreur 500 en cas d'échec
     return NextResponse.json(
       { error: 'Erreur lors de la création de la conversation' },
       { status: 500 }
     );
   }
-} 
+}

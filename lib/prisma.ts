@@ -20,4 +20,4 @@ export const prisma = global.prisma || new PrismaClient({
 // Attache le client au scope global en développement
 if (process.env.NODE_ENV !== 'production') {
   global.prisma = prisma;
-} 
+}

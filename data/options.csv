@@ -1,6 +1,6 @@
-name,description
-stock,Obtenir le stock d'un item x à un lieu y
-lost,Obtenir le nombre de pertes d'un item x à un lieu y
-report,Obtenir un rapport sur un item x à un lieu y
-item_details,Obtenir la description de l'item x
-loc_details,Obtenir la description de la location y 
+name,description,ask_for_item,ask_for_location
+item_stock,Consulter le stock d’un ou plusieurs objets,true,true
+item_lost,Consulter le nombre de pertes d’un ou plusieurs objets,true,true
+item_report,Consulter le rapport d’un ou plusieurs objets,true,true
+item_desc,Consulter la description d’un ou plusieurs objets,true,false
+loc_desc,Consulter la description d'un ou plusieurs établissement,false,true

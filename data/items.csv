@@ -1,10 +1,10 @@
 name,category
 Isabella Bath towel large,towel
 Isabella sheet (L),sheet
-Beluga PilCase (M),Pillow case
+Beluga PilCase (M),pillow_case
 Isabella Bath towel small,towel
 Isabella sheet (S),sheet
-Beluga PilCase (L),Pillow case
-Logid tow,towel
-Logid sh s,sheet
-Gena Towel,towel 
+Beluga PilCase (L),pillow_case
+Logid towel,towel
+Logid sheet,sheet
+Gena Towel,towel

@@ -34,8 +34,8 @@ async function main() {
     console.log('Insertion des options...');
     for (const option of optionsData) {
       await prisma.$executeRaw`
-        INSERT INTO "Option" (id, name, description)
-        VALUES (${crypto.randomUUID()}, ${option.name}, ${option.description})
+        INSERT INTO "Option" (id, name, description, ask_for_item, ask_for_location)
+        VALUES (${crypto.randomUUID()}, ${option.name}, ${option.description}, ${option.ask_for_item === 'true'}, ${option.ask_for_location === 'true'})
       `;
     }
 
@@ -70,4 +70,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  }); 
+  });
